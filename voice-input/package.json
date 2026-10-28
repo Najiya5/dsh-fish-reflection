@@ -1,0 +1,20 @@
+{
+  "name": "dsh-voice-input",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "DSH 本地语音识别能力 bundle：注册 speech-to-text 服务与 SenseVoice 提供方。",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "license": "MIT"
+}

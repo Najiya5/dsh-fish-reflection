@@ -1,0 +1,9 @@
+- insert:
+    - id: fish-reflection
+      name: 'dsh-fish-reflection'
+      config:
+        enabledSessions: []
+        settlementTime: '23:30'
+        injectionIntervalTurns: 1
+        emotionTimeoutMs: 3000
+        maxJournalPerDay: 400

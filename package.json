@@ -1,0 +1,48 @@
+{
+  "name": "dsh-fish-reflection",
+  "version": "0.8.12",
+  "private": false,
+  "type": "module",
+  "description": "为 DSH 主会话维护自写三观、精神/健康/余额外循环，并通过 B站/抖音素材与每日反省把成长过程写成档案的本地插件。",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "lib/*.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md",
+    "docs/*.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "slots"
+      ],
+      "external": [
+        "react"
+      ]
+    }
+  },
+  "license": "MIT",
+  "keywords": [
+    "deepseek-harness",
+    "dsh-plugin",
+    "reflection",
+    "personality",
+    "self-reflection",
+    "ai-companion"
+  ]
+}
