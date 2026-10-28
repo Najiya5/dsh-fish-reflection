@@ -69,12 +69,7 @@ flowchart LR
 ### 1. 环境
 
 - **DSH**（DeepSeek Harness）桌面端或 `dsh web`，带 Web 设置页；
-- 可选（按需）：
-  - `ffmpeg`：本地 ASR、抽帧需要；
-  - **Ollama + qwen2.5vl:3b**：本地视觉；
-  - `voice-input/` 能力 bundle + SenseVoice 模型：本地 ASR；
-  - **Edge/Chrome** 与 `yt-dlp`：抖音解析兜底；
-  - 任意 OpenAI 兼容**多模态**API：替代本地视觉写笔记。
+
 
 ### 2. 安装本插件
 
