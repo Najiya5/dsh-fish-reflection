@@ -79,7 +79,7 @@ flowchart LR
 ### 2. 安装本插件
 
 ```bash
-git clone https://github.com/<your-name>/dsh-fish-reflection.git
+git clone https://github.com/<Najiya5>/dsh-fish-reflection.git
 dsh plugin --profile desktop add ./dsh-fish-reflection
 ```
 
