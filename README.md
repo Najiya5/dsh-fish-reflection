@@ -85,21 +85,7 @@ dsh plugin --profile desktop add ./dsh-fish-reflection
 
 或在 DSH **设置 → 插件 → 安装**里选择本目录（本地 bundle 安装）。
 
-### 3.（可选）安装本地语音识别能力
 
-```bash
-dsh plugin --profile desktop add ./dsh-fish-reflection/voice-input
-```
-
-首次使用 ASR 时会自动下载 SenseVoice INT8 模型（约 230 MB），只吃 CPU。
-
-### 4. 启用
-
-刷新设置页 → **鱼的反思** → 勾选要生效的会话 → 按需打开「启用刷视频」等开关。
-
-> 插件默认**不注入、不判情绪**；但为了反省，它会持续记录主会话摘要（见「隐私」）。
-
----
 
 ## 设置项（部分）
 
