@@ -1,18 +1,23 @@
-# Build and Release Folders
-bin-debug/
-bin-release/
-[Oo]bj/
-[Bb]in/
+# Runtime data — never commit
+pass by/
+*.corrupt-*
+options.json
+*.tmp-*
+history.jsonl
+intake.json
+scope.json
+fish_reflection.json
 
-# Other files and folders
-.settings/
+# deps & build
+node_modules/
+pnpm-lock.yaml
+package-lock.json
 
-# Executables
-*.swf
-*.air
-*.ipa
-*.apk
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
 
-# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
-# should NOT be excluded as they contain compiler settings and other important
-# information for Eclipse / Flash Builder.
+# logs
+*.log

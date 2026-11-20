@@ -1,3 +1,10 @@
+## 0.8.13 — 2026-11-21
+
+- 视觉默认只走本地 qwen2.5（`visionBackend: local`），外部 API 保留为可选；
+- 抽帧从固定 6 帧改为**每分钟 X 帧**（默认 1 帧/分钟）+ 单视频上限（默认 30 帧），设置页可调；
+- 新增 `visionBackend` / `visionFramesPerMinute` / `visionMaxFrames` 选项，旧 `visionFrames` 自动忽略；
+- 新增 `visionPlan` 决策与单元测试（本地/本地优先/仅 API/关闭）。
+
 # Changelog
 
 ## 0.8.12 — 2026-10-28

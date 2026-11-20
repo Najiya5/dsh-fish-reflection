@@ -1,4 +1,4 @@
-﻿import assert from 'node:assert/strict'
+import assert from 'node:assert/strict'
 import { screenPrinciples, normalizePrinciples } from '../lib/reflect.js'
 
 // Deterministic screen: sycophancy cliches, self-aggrandizement, short, duplicate.

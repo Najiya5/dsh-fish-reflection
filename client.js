@@ -330,6 +330,12 @@ window.__ModuleLoader__.load({
           ),
           h('span', { style: S.dim }, intake.asrAvailable === false ? '语音识别未就绪' : '首次会下载约 239 MB 模型'),
         ))
+        var visionBackend = intake.visionBackend === 'api' || intake.visionBackend === 'auto' ? intake.visionBackend : 'local'
+        var visionBackendText = visionBackend === 'api'
+          ? (intake.analyzerConfigured ? '只调用外部 API，不跑本地视觉' : '只调用外部 API，但尚未配置，看画面会被跳过')
+          : visionBackend === 'auto'
+            ? '先跑本地；本地失败时才调用已配置的外部 API'
+            : '只跑本地 ' + (intake.visionModel || 'qwen2.5vl:3b') + '，不调用外部 API'
         advanced.push(h('div', { style: S.field },
           h('label', { style: { display: 'flex', alignItems: 'center', gap: 6 } },
             h('input', {
@@ -337,9 +343,42 @@ window.__ModuleLoader__.load({
               checked: intake.useVision !== false,
               onChange: function () { props.onToggleUseVision(intake.useVision === false) },
             }),
-            h('span', null, '看画面（本地视觉）'),
+            h('span', null, '看画面（本地视觉优先）'),
           ),
-          h('span', { style: S.dim }, '抽 ' + (intake.visionFrames == null ? 6 : intake.visionFrames) + ' 帧 → ' + (intake.visionModel || 'qwen2.5vl:3b') + ' 描述'),
+          h('div', { style: { display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 4 } },
+            h('span', { style: S.dim }, '每分钟'),
+            h('input', {
+              style: mix(S.input, { width: 56 }),
+              type: 'number',
+              min: 1,
+              max: 6,
+              value: intake.visionFramesPerMinute == null ? 1 : intake.visionFramesPerMinute,
+              onChange: function (event) { props.onVisionRate(event.target.value) },
+            }),
+            h('span', { style: S.dim }, '帧，单视频最多'),
+            h('input', {
+              style: mix(S.input, { width: 64 }),
+              type: 'number',
+              min: 1,
+              max: 120,
+              value: intake.visionMaxFrames == null ? 30 : intake.visionMaxFrames,
+              onChange: function (event) { props.onVisionCap(event.target.value) },
+            }),
+            h('span', { style: S.dim }, '帧（保存输入设置后生效）'),
+          ),
+          h('div', { style: { display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 4 } },
+            h('span', { style: S.dim }, '视觉来源'),
+            h('select', {
+              style: mix(S.input, { width: 230 }),
+              value: visionBackend,
+              onChange: function (event) { props.onVisionBackend(event.target.value) },
+            },
+              h('option', { value: 'local' }, '仅本地（默认）'),
+              h('option', { value: 'auto' }, '本地优先，失败再用 API'),
+              h('option', { value: 'api' }, '仅外部 API'),
+            ),
+          ),
+          h('span', { style: S.dim }, visionBackendText),
         ))
         advanced.push(h('div', { style: S.field },
           h('label', { style: { display: 'flex', alignItems: 'center', gap: 6 } },
@@ -391,7 +430,7 @@ window.__ModuleLoader__.load({
         ))
         advanced.push(h('div', { style: S.field },
           h('span', { style: { fontWeight: 600 } }, '分析视频的模型 API'),
-          h('span', { style: S.dim }, '（需要同时支持多模态和 ASR 的 API；填了就优先用它写笔记，本地 ASR/抽帧仍会补料）'),
+          h('span', { style: S.dim }, '（可选；默认不启用，本地视觉优先。需要同时支持多模态和 ASR 的 API）'),
           h('div', { style: { display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 } },
             h('input', {
               style: mix(S.input, { width: 240 }),
@@ -415,7 +454,9 @@ window.__ModuleLoader__.load({
             h('button', { style: S.button, onClick: props.onSaveAnalyzer, disabled: props.busy }, '保存 API'),
             h('button', { style: S.button, onClick: props.onTestAnalyzer, disabled: props.busy }, '测试 API'),
           ),
-          h('span', { style: S.dim }, intake.analyzerConfigured ? '已启用外部分析：' + (intake.analyzerModel || '') : '未配置时使用本地视觉 + 本地 ASR'),
+          h('span', { style: S.dim }, intake.analyzerConfigured
+            ? '外部 API 已配置：' + (intake.analyzerModel || '') + '（仅在视觉来源选外部或本地失败时使用）'
+            : '未配置外部 API；看画面默认走本地视觉'),
           props.analyzerTestResult ? h('div', { style: S.note }, props.analyzerTestResult) : null,
         ))
         advanced.push(h('div', { style: S.footer },
@@ -555,6 +596,12 @@ window.__ModuleLoader__.load({
       var durationState = React.useState(null)
       var durationDraft = durationState[0]
       var setDurationDraft = durationState[1]
+      var visionRateState = React.useState(null)
+      var visionRateDraft = visionRateState[0]
+      var setVisionRateDraft = visionRateState[1]
+      var visionCapState = React.useState(null)
+      var visionCapDraft = visionCapState[0]
+      var setVisionCapDraft = visionCapState[1]
 
       React.useEffect(function () {
         var cancelled = false
@@ -696,6 +743,9 @@ window.__ModuleLoader__.load({
           intakeReadComments: intake.readComments !== false,
           intakeUseAsr: intake.useAsr !== false,
           intakeUseVision: intake.useVision !== false,
+          visionFramesPerMinute: Number(visionRateDraft == null ? intake.visionFramesPerMinute : visionRateDraft) || 1,
+          visionMaxFrames: Number(visionCapDraft == null ? intake.visionMaxFrames : visionCapDraft) || 30,
+          visionBackend: intake.visionBackend === 'api' || intake.visionBackend === 'auto' ? intake.visionBackend : 'local',
           includeExternalInReflection: intake.includeExternalInReflection !== false,
           intakeMaxDurationMinutes: Number(durationDraft == null ? intake.maxDurationMinutes : durationDraft) || 0,
         }
@@ -820,6 +870,18 @@ window.__ModuleLoader__.load({
           }))
         }
         postJson('/options', { intakeUseVision: nextValue }).catch(function (failure) {
+          setError(String(failure && failure.message ? failure.message : failure))
+        })
+      }
+
+      function toggleVisionBackend(nextValue) {
+        var backend = nextValue === 'api' || nextValue === 'auto' ? nextValue : 'local'
+        if (data) {
+          setData(Object.assign({}, data, {
+            intake: Object.assign({}, data.intake, { visionBackend: backend }),
+          }))
+        }
+        postJson('/options', { visionBackend: backend }).catch(function (failure) {
           setError(String(failure && failure.message ? failure.message : failure))
         })
       }
@@ -1044,6 +1106,9 @@ window.__ModuleLoader__.load({
               onToggleLife: toggleLife,
               onToggleUseAsr: toggleUseAsr,
               onToggleUseVision: toggleUseVision,
+              onVisionRate: setVisionRateDraft,
+              onVisionCap: setVisionCapDraft,
+              onVisionBackend: toggleVisionBackend,
               onToggleReadComments: toggleReadComments,
               onToggleExternalReflect: toggleExternalReflect,
               onInterval: setIntervalDraft,

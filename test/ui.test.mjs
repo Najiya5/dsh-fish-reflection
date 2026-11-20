@@ -53,7 +53,9 @@ const intake = {
   asrAvailable: true,
   useVision: true,
   visionModel: 'qwen2.5vl:3b',
-  visionFrames: 6,
+  visionBackend: 'local',
+  visionFramesPerMinute: 1,
+  visionMaxFrames: 30,
   includeExternalInReflection: true,
   recent: [{ at: Date.now(), text: '[B站·生活] 一条笔记' }],
 }
@@ -89,6 +91,8 @@ assert.ok(on.includes('分析视频的模型 API'), 'analyzer section rendered')
 assert.ok(on.includes('抖音 Cookie'), 'douyin cookie field rendered')
 assert.ok(on.includes('两个都默认游客模式'), 'platform row rendered')
 assert.ok(on.includes('需要同时支持多模态和 ASR 的 API'), 'analyzer requirement note rendered')
+assert.ok(on.includes('本地视觉优先'), 'local-first vision label rendered')
+assert.ok(on.includes('每分钟'), 'frames-per-minute control rendered')
 
 const off = render(Object.assign({}, intake, { masterEnabled: false }))
 assert.ok(off.includes('已关闭'), 'disabled hint rendered')

@@ -69,18 +69,47 @@ flowchart LR
 ### 1. 环境
 
 - **DSH**（DeepSeek Harness）桌面端或 `dsh web`，带 Web 设置页；
-
+- 可选（按需）：
+  - `ffmpeg`：本地 ASR、抽帧需要；
+  - **Ollama + qwen2.5vl:3b**：本地视觉；
+  - `voice-input/` 能力 bundle + SenseVoice 模型：本地 ASR；
+  - **Edge/Chrome** 与 `yt-dlp`：抖音解析兜底；
+  - 任意 OpenAI 兼容**多模态**API：可选，默认不启用；启用后按视觉来源设置决定是否调用。
 
 ### 2. 安装本插件
 
 ```bash
-https://github.com/<Najiya5>/dsh-fish-reflection
+git clone https://github.com/<your-name>/dsh-fish-reflection.git
 dsh plugin --profile desktop add ./dsh-fish-reflection
 ```
 
 或在 DSH **设置 → 插件 → 安装**里选择本目录（本地 bundle 安装）。
 
+### 3.（可选）安装本地语音识别能力
 
+```bash
+dsh plugin --profile desktop add ./dsh-fish-reflection/voice-input
+```
+
+首次使用 ASR 时会自动下载 SenseVoice INT8 模型（约 230 MB），只吃 CPU。
+
+### 安装时提示「没有声明组合包」怎么办
+
+这个提示表示插件管理器在**你输入的 spec 所指的包**里没有读到 `"dsh": { "bundle": ... }`。本仓库的两个包都有声明，通常是因为输入指错了：
+
+- ✅ 正确：填**包含 `package.json` 的那个目录**，例如 `D:\path\to\dsh-fish-reflection`；
+- ❌ 常见错误：填了 zip 文件、填了上一级 `release` 目录、填了目录里的 `package.json` 文件；
+- ❌ 不要把**未发布的 npm 包名**当安装源（注册表上可能有同名但非本插件的包）。
+
+DSH 内的「添加插件」也支持 Git spec：`github:<用户名>/<仓库>`（发布后）。
+
+### 4. 启用
+
+刷新设置页 → **鱼的反思** → 勾选要生效的会话 → 按需打开「启用刷视频」等开关。
+
+> 插件默认**不注入、不判情绪**；但为了反省，它会持续记录主会话摘要（见「隐私」）。
+
+---
 
 ## 设置项（部分）
 
@@ -95,9 +124,10 @@ dsh plugin --profile desktop add ./dsh-fish-reflection
 | `autoIntake` | `false` | 是否每小时自动刷一个 |
 | `feedSources` | `bilibili`+`douyin` | 平台开关 |
 | `bilibiliCookie` / `douyinCookie` | 空 | 游客模式；Cookie 明文存本机 `options.json` |
-| `analyzerBaseUrl` / `analyzerApiKey` / `analyzerModel` | 空 | 可选外部分析 API（需同时支持多模态与 ASR） |
+| `analyzerBaseUrl` / `analyzerApiKey` / `analyzerModel` | 空 | 可选外部分析 API（需同时支持多模态与 ASR）；默认不启用，本地视觉优先 |
 | `asrLanguage` / `asrMaxSeconds` | `zh` / 600 | 本地 ASR 语言与单视频转写上限 |
-| `visionFrames` | 6 | 抽帧数 |
+| `visionBackend` | `local` | 视觉来源：`local` 仅本地 / `auto` 本地优先失败再用 API / `api` 仅外部 |
+| `visionFramesPerMinute` / `visionMaxFrames` | 1 / 30 | 每分钟抽帧数与单视频帧数上限 |
 
 运行时设置写入 `~/.dsh/fish-reflection/options.json`；改设置不需要重载插件。
 
@@ -125,9 +155,9 @@ dsh plugin --profile desktop add ./dsh-fish-reflection
 - 反省质量主观、不可测；人格条目在模型没有原文回显旧条目时可能减少（设计上限制了新增，但没有强制下限）。
 - 自动反省可能在启动/新建会话时补做，并非严格“每天恰好一次”。
 - 本地 ASR 默认只转写每个视频前 600 秒；唱歌/纯音乐转写质量差。
-- 视觉只抽 6 帧，能读场景/人物/画面文字，看不懂连续动作。
+- 视觉默认每分钟 1 帧、单视频最多 30 帧（可在设置页调整），能读场景/人物/画面文字，看不懂连续动作。
 - 抖音解析依赖 Edge/Chrome + yt-dlp + 新鲜 Cookie，可能失败；B站字幕需要 Cookie。
-- 外部 API 失败会自动回退本地链路；本地 Ollama 路径需要能被自动发现或手动配置。
+- 默认视觉只走本地；选「仅外部 API」后失败不会回退本地。本地 Ollama 路径需要能被自动发现或手动配置。
 - 本项目定位为**实验/娱乐**，不提供医疗、心理或财务建议。
 
 ---
@@ -145,3 +175,4 @@ node test/security.test.mjs  # 抖音域白名单 / options 原子写
 ## License
 
 [MIT](LICENSE)
+
